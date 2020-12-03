@@ -20,3 +20,10 @@ def walk_tree_pattern(tree_pattern, direction):
 if __name__ == "__main__":
     tree_pattern = read_tree_pattern(argv[-1])
     print(walk_tree_pattern(tree_pattern, (3, 1)))
+    print(
+        walk_tree_pattern(tree_pattern, (1, 1))
+        * walk_tree_pattern(tree_pattern, (3, 1))
+        * walk_tree_pattern(tree_pattern, (5, 1))
+        * walk_tree_pattern(tree_pattern, (7, 1))
+        * walk_tree_pattern(tree_pattern, (1, 2))
+    )
