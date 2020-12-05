@@ -28,4 +28,3 @@ for a, b, c in product(puzzle_input, puzzle_input, puzzle_input):
         print(f"The three numbers are {a}, {b} and {c}")
         print(f"Their sum is: {a + b + c}")
         print(f"and their product is: {a * b * c}")
-

@@ -49,7 +49,6 @@ if __name__ == "__main__":
     # # part 2
     seat_ids = sorted(seat_ids)
     for i, seat_id in enumerate(seat_ids[1:-1], 1):
-        if (seat_ids[i-1] == seat_id - 1 and seat_ids[i+1] == seat_id + 1):
+        if seat_ids[i - 1] == seat_id - 1 and seat_ids[i + 1] == seat_id + 1:
             continue
         print(seat_id)
-
