@@ -41,8 +41,15 @@ def find_boarding_pass_row_col(boarding_pass):
 
 
 if __name__ == "__main__":
+    # part 1
     boarding_passes = read_boarding_passes(argv[-1])
-    max_seat_id = max(
-        calc_seat_id(*find_boarding_pass_row_col(bp)) for bp in boarding_passes
-    )
-    print(f"The highest seat ID is: {max_seat_id}")
+    seat_ids = [calc_seat_id(*find_boarding_pass_row_col(bp)) for bp in boarding_passes]
+    print(f"The highest seat ID is: {max(seat_ids)}")
+
+    # # part 2
+    seat_ids = sorted(seat_ids)
+    for i, seat_id in enumerate(seat_ids[1:-1], 1):
+        if (seat_ids[i-1] == seat_id - 1 and seat_ids[i+1] == seat_id + 1):
+            continue
+        print(seat_id)
+
