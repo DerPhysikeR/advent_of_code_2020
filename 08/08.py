@@ -1,5 +1,10 @@
 from sys import argv
 
+def read_instructions(filename):
+    with open(filename) as stream:
+        instructions = stream.read().strip().split("\n")
+        return instructions
+
 
 class Emulator:
     def __init__(self, instructions):
@@ -33,9 +38,7 @@ class Emulator:
 
     @classmethod
     def from_file(cls, filename):
-        with open(filename) as stream:
-            instructions = stream.read().strip().split("\n")
-            return cls(instructions)
+        return cls(read_instructions(filename))
 
 
 if __name__ == "__main__":
