@@ -28,7 +28,9 @@ def count_occupied_neighbors(seat_layout, row, col):
     return sum_
 
 
-def evolve_seat_layout(seat_layout):
+def evolve_seat_layout(
+    seat_layout, counting_function=count_occupied_neighbors, emptying_threshold=4
+):
     result = []
     for row, line in enumerate(seat_layout):
         result.append([])
@@ -36,10 +38,10 @@ def evolve_seat_layout(seat_layout):
             if letter == ".":
                 result[-1].append(".")
                 continue
-            on = count_occupied_neighbors(seat_layout, row, col)
+            on = counting_function(seat_layout, row, col)
             if letter == "L" and on == 0:
                 result[-1].append("#")
-            elif letter == "#" and on >= 4:
+            elif letter == "#" and on >= emptying_threshold:
                 result[-1].append("L")
             else:
                 result[-1].append(letter)
@@ -50,14 +52,19 @@ def to_string(seat_layout):
     return "\n".join("".join(row) for row in seat_layout)
 
 
-if __name__ == "__main__":
-    seat_layout = read_seat_layout(argv[-1])
+def print_evolution(seat_layout, evolution_function):
     previous_string_layout = ""
     while previous_string_layout != (sl := to_string(seat_layout)):
         print(sl)
         print()
         previous_string_layout = sl
-        seat_layout = evolve_seat_layout(seat_layout)
+        seat_layout = evolution_function(seat_layout)
+    return seat_layout
+
+
+if __name__ == "__main__":
+    original_seat_layout = read_seat_layout(argv[-1])
+    seat_layout = print_evolution(original_seat_layout, evolve_seat_layout)
 
     print(
         f"The final seat layout has {sum(r.count('#') for r in seat_layout)} occupied seats."
