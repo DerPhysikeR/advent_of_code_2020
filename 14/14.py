@@ -63,17 +63,15 @@ class ActualPortComputer(PortComputer):
             self.memory[addr] = value
 
 
+def run(computer, program):
+    for line in program:
+        computer.run_line(line)
+    print(f"The sum of all non-zero values in memory is {computer.sum_values()}.")
+
+
 if __name__ == "__main__":
     program = read_program(argv[-1])
-
     # part 1
-    port_computer = PortComputer()
-    for line in program:
-        port_computer.run_line(line)
-    print(f"The sum of all non-zero values in memory is {port_computer.sum_values()}.")
-
+    run(PortComputer(), program)
     # part 2
-    port_computer = ActualPortComputer()
-    for line in program:
-        port_computer.run_line(line)
-    print(f"The sum of all non-zero values in memory is {port_computer.sum_values()}.")
+    run(ActualPortComputer(), program)
