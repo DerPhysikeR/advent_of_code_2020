@@ -1,4 +1,5 @@
 from sys import argv
+from copy import deepcopy
 
 
 def parse_ticket(ticket_string):
@@ -36,8 +37,8 @@ def read_ticket_information(filename):
     return ticket_rules, your_ticket, nearby_tickets
 
 
-def calc_ticket_scanning_error_rate(tickets_to_check, ticket_rules):
-    error_rate = 0
+def find_valid_tickets_and_scanning_error_rate(tickets_to_check, ticket_rules):
+    valid_tickets, error_rate = [], 0
     for ticket in tickets_to_check:
         for number in ticket:
             for rule in ticket_rules.values():
@@ -45,9 +46,59 @@ def calc_ticket_scanning_error_rate(tickets_to_check, ticket_rules):
                     break
             else:
                 error_rate += number
-    return error_rate
+                break
+        else:
+            valid_tickets.append(ticket)
+    return valid_tickets, error_rate
+
+
+def find_possible_field_names_for_every_field(tickets, ticket_rules):
+    possible_field_names_for_every_field = []
+    for field_num in range(len(tickets[0])):
+        possible_field_names = set()
+        for field_name, ticket_rule in ticket_rules.items():
+            if all(ticket_rule(ticket[field_num]) for ticket in tickets):
+                possible_field_names.add(field_name)
+        possible_field_names_for_every_field.append(possible_field_names)
+    return possible_field_names_for_every_field
+
+
+def identify_field_names_uniquely(possible_field_names):
+    possible_field_names = deepcopy(possible_field_names)
+    previous_num_field_names = sum(len(fn) for fn in possible_field_names) + 1
+    while sum(len(fn) for fn in possible_field_names) < previous_num_field_names:
+        previous_num_field_names = sum(len(fn) for fn in possible_field_names)
+        for i, field_names in enumerate(possible_field_names):
+            if len(field_names) == 1:
+                for j, _ in enumerate(possible_field_names):
+                    if i != j:
+                        possible_field_names[j] = possible_field_names[j].difference(
+                            field_names
+                        )
+    if any(len(pfn) != 1 for pfn in possible_field_names):
+        raise ValueError("Field names can't be identified uniquely!")
+    return [pfn.pop() for pfn in possible_field_names]
 
 
 if __name__ == "__main__":
+    # part 1
     ticket_rules, your_ticket, nearby_tickets = read_ticket_information(argv[-1])
-    print(calc_ticket_scanning_error_rate(nearby_tickets, ticket_rules))
+    valid_tickets, scanning_error_rate = find_valid_tickets_and_scanning_error_rate(
+        nearby_tickets, ticket_rules
+    )
+    print(scanning_error_rate)
+
+    # part 2
+    possible_field_names_for_every_field = find_possible_field_names_for_every_field(
+        valid_tickets, ticket_rules
+    )
+    # print(possible_field_names_for_every_field)
+    unique_field_names = identify_field_names_uniquely(
+        possible_field_names_for_every_field
+    )
+    # print(unique_field_names)
+    product = 1
+    for ufn, yt in zip(unique_field_names, your_ticket):
+        if ufn.startswith("departure"):
+            product *= yt
+    print(product)
