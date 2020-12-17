@@ -1,7 +1,7 @@
 from sys import argv
 from collections import namedtuple, defaultdict
 
-Cube = namedtuple("Cube", "x, y, z")
+HyperCube = namedtuple("HyperCube", "x, y, z, w")
 
 
 def read_puzzle_input(filename):
@@ -10,7 +10,7 @@ def read_puzzle_input(filename):
         for row, line in enumerate(stream.read().strip().split("\n")):
             for col, letter in enumerate(line):
                 if letter == "#":
-                    active_cubes.add(Cube(row, col, 0))
+                    active_cubes.add(HyperCube(row, col, 0, 0))
         return active_cubes
 
 
@@ -18,8 +18,9 @@ def generate_neighbors(cube):
     for x in range(cube.x - 1, cube.x + 2):
         for y in range(cube.y - 1, cube.y + 2):
             for z in range(cube.z - 1, cube.z + 2):
-                if (new_cube := Cube(x, y, z)) != cube:
-                    yield new_cube
+                for w in range(cube.w - 1, cube.w + 2):
+                    if (new_cube := HyperCube(x, y, z, w)) != cube:
+                        yield new_cube
 
 
 def evolve_cubes(active_cubes):
@@ -41,18 +42,19 @@ def evolve_cubes(active_cubes):
 
 
 def print_cubes(cubes):
-    xx, yy, zz = [c.x for c in cubes], [c.y for c in cubes], [c.z for c in cubes]
+    xx, yy, zz, ww = [[c[i] for c in cubes] for i in range(4)]
     for z in range(min(zz), max(zz) + 1):
-        print(f"z={z}")
-        for x in range(min(xx), max(xx) + 1):
-            line = []
-            for y in range(min(yy), max(yy) + 1):
-                if Cube(x, y, z) in cubes:
-                    line.append("#")
-                else:
-                    line.append(".")
-            print("".join(line))
-        print()
+        for w in range(min(ww), max(ww) + 1):
+            print(f"z={z}, w={w}")
+            for x in range(min(xx), max(xx) + 1):
+                line = []
+                for y in range(min(yy), max(yy) + 1):
+                    if HyperCube(x, y, z, w) in cubes:
+                        line.append("#")
+                    else:
+                        line.append(".")
+                print("".join(line))
+            print()
 
 
 if __name__ == "__main__":
