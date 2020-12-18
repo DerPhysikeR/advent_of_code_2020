@@ -1,4 +1,5 @@
 from sys import argv
+from functools import reduce
 from collections import deque
 
 
@@ -31,28 +32,22 @@ def find_matching_paren_idx(expression):
 
 def evaluate_expression(expression):
     """
-    >>> evaluate_expression("1 + 2 * 3")
-    9
-    >>> evaluate_expression("1 + 2 * 3")
-    9
-    >>> evaluate_expression("(1 + 2 * 3)")
-    9
-    >>> evaluate_expression("((1 + 2) * 3)")
-    9
+    >>> evaluate_expression("1 * 2 + 3")
+    5
+    >>> evaluate_expression("(1 * 2 + 3)")
+    5
+    >>> evaluate_expression("((1 * 2) + 3)")
+    5
     """
     if not "(" in expression:
-        symbols = deque(expression.split(" "))
-        while len(symbols) > 1:
-            num1 = int(symbols.popleft())
-            operator = symbols.popleft()
-            num2 = int(symbols.popleft())
-            if operator == "+":
-                symbols.appendleft(str(num1 + num2))
-            elif operator == "*":
-                symbols.appendleft(str(num1 * num2))
-            else:
-                raise ValueError(f"Invalid symbol encountered `{operator}`.")
-        return int(symbols.pop())
+        if "+" not in expression:
+            return int(reduce(lambda x, y: int(x) * int(y), expression.split(" ")[::2]))
+        before, _, after = expression.partition(" + ")
+        before, _, num1 = before.rpartition(" ")
+        num2, _, after = after.partition(" ")
+        return evaluate_expression(
+            f"{before.strip()} {int(num1) + int(num2)} {after.strip()}".strip()
+        )
     opening_paren_idx = expression.index("(")
     closing_paren_idx = (
         find_matching_paren_idx(expression[opening_paren_idx:]) + opening_paren_idx
