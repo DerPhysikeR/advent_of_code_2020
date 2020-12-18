@@ -27,7 +27,7 @@ def find_matching_paren_idx(expression):
             count -= 1
         if count == 0:
             return i
-    raise ValueError(f"Invalid Expression `{expression}`.")
+    raise ValueError(f"Non-paired parenthesis encountered in `{expression}`.")
 
 
 def evaluate_expression(expression):
