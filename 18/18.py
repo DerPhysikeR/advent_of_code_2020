@@ -60,11 +60,7 @@ def evaluate_expression(expression):
     evaluated_expression = evaluate_expression(
         expression[opening_paren_idx + 1 : closing_paren_idx]
     )
-    after = (
-        ""
-        if closing_paren_idx >= len(expression)
-        else expression[closing_paren_idx + 1 :]
-    ).strip()
+    after = expression[closing_paren_idx + 1 :].strip()
     return evaluate_expression(f"{before} {evaluated_expression} {after}".strip())
 
 
@@ -94,11 +90,7 @@ def advanced_evaluate_expression(expression):
     evaluated_expression = advanced_evaluate_expression(
         expression[opening_paren_idx + 1 : closing_paren_idx]
     )
-    after = (
-        ""
-        if closing_paren_idx >= len(expression)
-        else expression[closing_paren_idx + 1 :]
-    ).strip()
+    after = expression[closing_paren_idx + 1 :].strip()
     return advanced_evaluate_expression(
         f"{before} {evaluated_expression} {after}".strip()
     )
