@@ -18,6 +18,8 @@ class RuleChecker:
         if '"' in rule_string:
 
             def rule_checker(message, idx):
+                if idx >= len(message):
+                    return False, idx
                 if message[idx] == rule_string[1]:
                     return True, idx + 1
                 return False, idx
@@ -57,8 +59,16 @@ class RuleChecker:
         return result
 
 
-if __name__ == "__main__":
-    rules, messages = read_rules_and_messages(argv[-1])
+def replace_rules_for_part_2(rules):
+    for i, rule in enumerate(rules):
+        if rule.startswith("8:"):
+            rules[i] = "8: 42 | 42 8"
+        if rule.startswith("11:"):
+            rules[i] = "11: 42 31 | 42 11 31"
+    return rules
+
+
+def run(rules, messages):
     rule_checker = RuleChecker(rules)
     num_matching_messages = 0
     for message in messages:
@@ -68,6 +78,15 @@ if __name__ == "__main__":
         else:
             print(f"x {message}")
     print(num_matching_messages)
+
+
+if __name__ == "__main__":
+    rules, messages = read_rules_and_messages(argv[-1])
+    print("Part 1:")
+    run(rules, messages)
+    print()
+    print("Part 2:")
+    run(replace_rules_for_part_2(rules), messages)
 
     # 4 1 5
     # "a" (2 3 | 3 2) "b"
