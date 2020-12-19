@@ -1,3 +1,4 @@
+from itertools import product
 from sys import argv
 
 
@@ -59,18 +60,26 @@ class RuleChecker:
         return result
 
 
-def replace_rules_for_part_2(rules, *replacements):
-    if len(replacements) == 0:
-        replacements = ["8: 42 | 42 8", "11: 42 31 | 42 11 31"]
-    for i, rule in enumerate(rules):
-        for replacement in replacements:
-            if rule.startswith(replacement.partition(" ")[0]):
-                rules[i] = replacement
-    return rules
+class LoopyRuleChecker(RuleChecker):
+    def _update_rule(self, num, rule_string):
+        self.rule_dict[num] = self.rule_checker_factory(rule_string)
+
+    def check_message_with_rule_0(self, message):
+        for eight, eleven in rule_generator(10):
+            self._update_rule(8, eight)
+            self._update_rule(11, eleven)
+            if super().check_message_with_rule_0(message):
+                return True
+        return False
 
 
-def run(rules, messages):
-    rule_checker = RuleChecker(rules)
+def rule_generator(num):
+    eight_rule = [" ".join(["42"] * i) for i in range(1, num + 1)]
+    eleventh_rule = [" ".join(["42"] * i + ["31"] * i) for i in range(1, num + 1)]
+    yield from product(eight_rule, eleventh_rule)
+
+
+def run(rule_checker, messages):
     num_matching_messages = 0
     for message in messages:
         if rule_checker.check_message_with_rule_0(message):
@@ -84,10 +93,10 @@ def run(rules, messages):
 if __name__ == "__main__":
     rules, messages = read_rules_and_messages(argv[-1])
     print("Part 1:")
-    run(rules, messages)
+    run(RuleChecker(rules), messages)
     print()
     print("Part 2:")
-    run(replace_rules_for_part_2(rules), messages)
+    run(LoopyRuleChecker(rules), messages)
 
     # 4 1 5
     # "a" (2 3 | 3 2) "b"
