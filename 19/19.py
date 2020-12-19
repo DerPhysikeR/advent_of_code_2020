@@ -59,12 +59,13 @@ class RuleChecker:
         return result
 
 
-def replace_rules_for_part_2(rules):
+def replace_rules_for_part_2(rules, *replacements):
+    if len(replacements) == 0:
+        replacements = ["8: 42 | 42 8", "11: 42 31 | 42 11 31"]
     for i, rule in enumerate(rules):
-        if rule.startswith("8:"):
-            rules[i] = "8: 42 | 42 8"
-        if rule.startswith("11:"):
-            rules[i] = "11: 42 31 | 42 11 31"
+        for replacement in replacements:
+            if rule.startswith(replacement.partition(" ")[0]):
+                rules[i] = replacement
     return rules
 
 
