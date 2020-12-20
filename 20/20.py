@@ -36,6 +36,52 @@ class Image:
             new_data.append("".join(column[::-1]))
         return Image(new_data, self._modifications + ["rr"])
 
+    @property
+    def shape(self):
+        return (len(self.data), len(self.data[0]))
+
+    def check_mask_in_image(self, mask):
+        assert self.shape == mask.shape
+        for line, mline in zip(self.data, mask.data):
+            for letter, mletter in zip(line, mline):
+                if mletter == "#" and letter != "#":
+                    return False
+        return True
+
+    def apply_mask_to_points(self, points, mask):
+        list_data = [list(line) for line in self.data]
+        list_mask = [list(line) for line in mask.data]
+        for point in points:
+            for row in range(mask.shape[0]):
+                for col in range(mask.shape[1]):
+                    if list_mask[row][col] == "#":
+                        list_data[row + point[0]][col + point[1]] = "O"
+        return Image(["".join(line) for line in list_data])
+
+    def find_mask_in_image(self, mask):
+        nrows = self.shape[0] - mask.shape[0]
+        ncols = self.shape[1] - mask.shape[1]
+        points = []
+        for row in range(nrows):
+            for col in range(ncols):
+                subimage = self.extract_subimage((row, col), mask.shape)
+                if subimage.check_mask_in_image(mask):
+                    points.append(Point(row, col))
+        return points
+
+    def extract_subimage(self, position, shape):
+        return Image(
+            [
+                line[position[1] : position[1] + shape[1]]
+                for line in self.data[position[0] : position[0] + shape[0]]
+            ]
+        )
+
+    def __eq__(self, other):
+        if self.shape == other.shape:
+            return all(s == o for s, o in zip(self.data, other.data))
+        return False
+
     @classmethod
     def from_tiles(cls, tiles):
         tile_data_without_borders = []
@@ -162,6 +208,9 @@ if __name__ == "__main__":
     print(reduce(lambda id1, id2: id1 * id2, corner_tile_ids))
 
     # part 2
+    with open("sea_monster.txt") as stream:
+        sea_monster = Image(stream.read().strip("\n").split("\n"))
+
     list_image = []
     for row in range(minrow, maxrow + 1):
         list_image.append([])
@@ -169,3 +218,10 @@ if __name__ == "__main__":
             list_image[-1].append(dict_image[Point(row, col)])
     image = Image.from_tiles(list_image)
     print(image)
+    for orientation in generate_orientations(image):
+        if (points := orientation.find_mask_in_image(sea_monster)) :
+            image = orientation
+            break
+    print(points)
+    masked_image = image.apply_mask_to_points(points, sea_monster)
+    print(sum(line.count("#") for line in masked_image.data))
