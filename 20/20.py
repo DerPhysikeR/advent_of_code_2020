@@ -36,6 +36,19 @@ class Image:
             new_data.append("".join(column[::-1]))
         return Image(new_data, self._modifications + ["rr"])
 
+    @classmethod
+    def from_tiles(cls, tiles):
+        tile_data_without_borders = []
+        for row in tiles:
+            tile_data_without_borders.append([])
+            for tile in row:
+                tile_data_without_borders[-1].append(tile.get_data_without_borders())
+        data = []
+        for tile_row in tile_data_without_borders:
+            for all_rows in zip(*tile_row):
+                data.append("".join(all_rows))
+        return Image(data)
+
 
 class Tile(Image):
     def __init__(self, id_, data, modifications=None):
@@ -72,6 +85,9 @@ class Tile(Image):
         if direction == (1, 0):  # down
             return self.data[-1] == other.data[0]
         raise ValueError(f"Invalid direction `{direction}`.")
+
+    def get_data_without_borders(self):
+        return [line[1:-1] for line in self.data[1:-1]]
 
 
 Point = namedtuple("Point", "row, col")
@@ -133,11 +149,23 @@ def generate_orientations(tile):
 
 if __name__ == "__main__":
     tiles = read_tiles(argv[-1])
-    image = assemble_image_from_tiles(tiles)
-    rows, cols = [p.row for p in image], [p.col for p in image]
+    dict_image = assemble_image_from_tiles(tiles)
+    rows, cols = [p.row for p in dict_image], [p.col for p in dict_image]
+
+    # part 1
     minrow, maxrow = min(rows), max(rows)
     mincol, maxcol = min(cols), max(cols)
     corner_tile_ids = [
-        image[Point(r, c)].id_ for r, c in product([minrow, maxrow], [mincol, maxcol])
+        dict_image[Point(r, c)].id_
+        for r, c in product([minrow, maxrow], [mincol, maxcol])
     ]
     print(reduce(lambda id1, id2: id1 * id2, corner_tile_ids))
+
+    # part 2
+    list_image = []
+    for row in range(minrow, maxrow + 1):
+        list_image.append([])
+        for col in range(mincol, maxcol + 1):
+            list_image[-1].append(dict_image[Point(row, col)])
+    image = Image.from_tiles(list_image)
+    print(image)
