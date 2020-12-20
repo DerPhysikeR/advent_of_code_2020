@@ -21,36 +21,45 @@ class Image:
     def __repr__(self):
         return f"Image(({len(self.data)}, {len(self.data[0])}))"
 
+    def __iter__(self):
+        return iter(self.data)
+
+    def __getitem__(self, key):
+        return self.data[key]
+
+    def __len__(self):
+        return len(self.data)
+
     def __str__(self):
-        return "\n".join(self.data)
+        return "\n".join(self)
 
     def flip_horizontal(self):
         new_data = []
-        for line in self.data:
+        for line in self:
             new_data.append(line[::-1])
         return Image(new_data, self._modifications + ["fh"])
 
     def rotate_right(self):
         new_data = []
-        for column in zip(*self.data):
+        for column in zip(*self):
             new_data.append("".join(column[::-1]))
         return Image(new_data, self._modifications + ["rr"])
 
     @property
     def shape(self):
-        return (len(self.data), len(self.data[0]))
+        return (len(self), len(self[0]))
 
     def check_mask_in_image(self, mask):
         assert self.shape == mask.shape
-        for line, mline in zip(self.data, mask.data):
+        for line, mline in zip(self, mask):
             for letter, mletter in zip(line, mline):
                 if mletter == "#" and letter != "#":
                     return False
         return True
 
     def apply_mask_to_points(self, points, mask):
-        list_data = [list(line) for line in self.data]
-        list_mask = [list(line) for line in mask.data]
+        list_data = [list(line) for line in self]
+        list_mask = [list(line) for line in mask]
         for point in points:
             for row in range(mask.shape[0]):
                 for col in range(mask.shape[1]):
@@ -73,13 +82,13 @@ class Image:
         return Image(
             [
                 line[position[1] : position[1] + shape[1]]
-                for line in self.data[position[0] : position[0] + shape[0]]
+                for line in self[position[0] : position[0] + shape[0]]
             ]
         )
 
     def __eq__(self, other):
         if self.shape == other.shape:
-            return all(s == o for s, o in zip(self.data, other.data))
+            return all(s == o for s, o in zip(self, other))
         return False
 
     @classmethod
@@ -119,21 +128,17 @@ class Tile(Image):
 
     def fits(self, other, direction):
         if direction == (0, 1):  # right
-            return "".join(l[-1] for l in self.data) == "".join(
-                l[0] for l in other.data
-            )
+            return "".join(l[-1] for l in self) == "".join(l[0] for l in other)
         if direction == (-1, 0):  # up
-            return self.data[0] == other.data[-1]
+            return self[0] == other[-1]
         if direction == (0, -1):  # left
-            return "".join(l[0] for l in self.data) == "".join(
-                l[-1] for l in other.data
-            )
+            return "".join(l[0] for l in self) == "".join(l[-1] for l in other)
         if direction == (1, 0):  # down
-            return self.data[-1] == other.data[0]
+            return self[-1] == other[0]
         raise ValueError(f"Invalid direction `{direction}`.")
 
     def get_data_without_borders(self):
-        return [line[1:-1] for line in self.data[1:-1]]
+        return [line[1:-1] for line in self[1:-1]]
 
 
 Point = namedtuple("Point", "row, col")
@@ -224,4 +229,4 @@ if __name__ == "__main__":
             break
     # print(points)
     masked_image = image.apply_mask_to_points(points, sea_monster)
-    print(sum(line.count("#") for line in masked_image.data))
+    print(sum(line.count("#") for line in masked_image))
