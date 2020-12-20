@@ -10,9 +10,8 @@ def read_tiles(filename):
         return [Tile.from_string(t) for t in stream.read().strip().split("\n\n")]
 
 
-class Tile:
-    def __init__(self, id_, data, modifications=None):
-        self.id_ = id_
+class Image:
+    def __init__(self, data, modifications=None):
         self.data = data
         if not modifications:
             self._modifications = []
@@ -20,7 +19,7 @@ class Tile:
             self._modifications = modifications
 
     def __repr__(self):
-        return f"Tile({self.id_}, ({len(self.data)}, {len(self.data[0])}))"
+        return f"Image(({len(self.data)}, {len(self.data[0])}))"
 
     def __str__(self):
         return "\n".join(self.data)
@@ -29,13 +28,30 @@ class Tile:
         new_data = []
         for line in self.data:
             new_data.append(line[::-1])
-        return Tile(self.id_, new_data, self._modifications + ["fh"])
+        return Image(new_data, self._modifications + ["fh"])
 
     def rotate_right(self):
         new_data = []
         for column in zip(*self.data):
             new_data.append("".join(column[::-1]))
-        return Tile(self.id_, new_data, self._modifications + ["rr"])
+        return Image(new_data, self._modifications + ["rr"])
+
+
+class Tile(Image):
+    def __init__(self, id_, data, modifications=None):
+        self.id_ = id_
+        super().__init__(data, modifications)
+
+    def __repr__(self):
+        return f"Tile({self.id_}, ({len(self.data)}, {len(self.data[0])}))"
+
+    def flip_horizontal(self):
+        new_image = super().flip_horizontal()
+        return Tile(self.id_, new_image.data, new_image._modifications)
+
+    def rotate_right(self):
+        new_image = super().rotate_right()
+        return Tile(self.id_, new_image.data, new_image._modifications)
 
     @classmethod
     def from_string(cls, tile_string):
