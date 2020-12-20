@@ -182,15 +182,14 @@ def assemble_image_from_tiles(tiles):
 
 
 def generate_orientations(tile):
-    yield tile
-    yield (tile := tile.rotate_right())
-    yield (tile := tile.rotate_right())
-    yield (tile := tile.rotate_right())
-    tile = tile.rotate_right().flip_horizontal()
-    yield tile
-    yield (tile := tile.rotate_right())
-    yield (tile := tile.rotate_right())
-    yield (tile := tile.rotate_right())
+    yield from generate_rotations(tile)
+    tile = tile.flip_horizontal()
+    yield from generate_rotations(tile)
+
+
+def generate_rotations(tile):
+    for _ in range(4):
+        yield (tile := tile.rotate_right())
 
 
 if __name__ == "__main__":
