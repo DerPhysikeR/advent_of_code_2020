@@ -192,35 +192,36 @@ def generate_rotations(tile):
         yield (tile := tile.rotate_right())
 
 
-if __name__ == "__main__":
-    tiles = read_tiles(argv[-1])
-    dict_image = assemble_image_from_tiles(tiles)
-    rows, cols = [p.row for p in dict_image], [p.col for p in dict_image]
-
-    # part 1
+def convert_tile_dict_to_tile_list(tile_dict):
+    rows, cols = [p.row for p in tile_dict], [p.col for p in tile_dict]
     minrow, maxrow = min(rows), max(rows)
     mincol, maxcol = min(cols), max(cols)
-    corner_tile_ids = [
-        dict_image[Point(r, c)].id_
-        for r, c in product([minrow, maxrow], [mincol, maxcol])
-    ]
-    print(reduce(lambda id1, id2: id1 * id2, corner_tile_ids))
-
-    # part 2
-    with open("sea_monster.txt") as stream:
-        sea_monster = Image(stream.read().strip("\n").split("\n"))
-
     list_image = []
     for row in range(minrow, maxrow + 1):
         list_image.append([])
         for col in range(mincol, maxcol + 1):
-            list_image[-1].append(dict_image[Point(row, col)])
+            list_image[-1].append(tile_dict[Point(row, col)])
+    return list_image
+
+
+if __name__ == "__main__":
+    tiles = read_tiles(argv[-1])
+    list_image = convert_tile_dict_to_tile_list(assemble_image_from_tiles(tiles))
+
+    # part 1
+    corner_tile_ids = [
+        list_image[row][col].id_ for row, col in product([0, -1], [0, -1])
+    ]
+    print(reduce(lambda id1, id2: id1 * id2, corner_tile_ids))
+
+    # part 2
     image = Image.from_tiles(list_image)
-    print(image)
+    with open("sea_monster.txt") as stream:
+        sea_monster = Image(stream.read().strip("\n").split("\n"))
     for orientation in generate_orientations(image):
         if (points := orientation.find_mask_in_image(sea_monster)) :
             image = orientation
             break
-    print(points)
+    # print(points)
     masked_image = image.apply_mask_to_points(points, sea_monster)
     print(sum(line.count("#") for line in masked_image.data))
