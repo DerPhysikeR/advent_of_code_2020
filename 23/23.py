@@ -95,3 +95,13 @@ if __name__ == "__main__":
     while node.value != 1:
         node = node.after
     print("".join(str(n) for n in get_values_of_linked_list(node)[1:]))
+
+    # part 2
+    linked_list = initialize_linked_list(original_cups, 1_000_000)
+    for _ in range(10_000_000):
+        linked_list = evolve_linked_list(linked_list)
+    # find node number 1
+    node = linked_list
+    while node.value != 1:
+        node = node.after
+    print(node.after.value * node.after.after.value)
