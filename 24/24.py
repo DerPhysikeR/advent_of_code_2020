@@ -35,6 +35,28 @@ def split_instructions(instructions):
     return split_instructions_
 
 
+def find_neighbors(point):
+    for direction in DIRECTION_DICT.values():
+        yield Point(point.x + direction.x, point.y + direction.y)
+
+
+def evolve_tiles(black_tiles):
+    black_neighbor_count = defaultdict(int)
+    for tile in black_tiles:
+        for neighbor in find_neighbors(tile):
+            if neighbor in black_tiles:
+                black_neighbor_count[tile] += 1
+            else:
+                black_neighbor_count[neighbor] += 1
+    new_black_tiles = set()
+    for tile, count in black_neighbor_count.items():
+        if tile in black_tiles and count in set([1, 2]):
+            new_black_tiles.add(tile)
+        if tile not in black_tiles and count == 2:
+            new_black_tiles.add(tile)
+    return new_black_tiles
+
+
 def initialize_tiles(tile_flips):
     black_tiles = set()
     for instructions in tile_flips:
@@ -51,6 +73,12 @@ def initialize_tiles(tile_flips):
 
 if __name__ == "__main__":
     tile_flips = read_tile_flips(argv[-1])
+
+    # part 1
     black_tiles = initialize_tiles(tile_flips)
-    print(black_tiles)
     print(len(black_tiles))
+
+    # part 2
+    for day in range(1, 100 + 1):
+        black_tiles = evolve_tiles(black_tiles)
+        print(f"Day {day}: {len(black_tiles)}")
