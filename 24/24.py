@@ -37,12 +37,15 @@ def split_instructions(instructions):
 
 if __name__ == "__main__":
     tile_flips = read_tile_flips(argv[-1])
-    tiles = defaultdict(bool)
+    black_tiles = set()
     for instructions in tile_flips:
         position = Point(0, 0)
         for instruction in instructions:
             move = DIRECTION_DICT[instruction]
             position = Point(position.x + move.x, position.y + move.y)
-        tiles[position] = not tiles[position]
-    print(tiles)
-    print(sum(tile for tile in tiles.values()))
+        if position in black_tiles:
+            black_tiles.remove(position)
+        else:
+            black_tiles.add(position)
+    print(black_tiles)
+    print(len(black_tiles))
