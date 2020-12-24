@@ -35,8 +35,7 @@ def split_instructions(instructions):
     return split_instructions_
 
 
-if __name__ == "__main__":
-    tile_flips = read_tile_flips(argv[-1])
+def initialize_tiles(tile_flips):
     black_tiles = set()
     for instructions in tile_flips:
         position = Point(0, 0)
@@ -47,5 +46,11 @@ if __name__ == "__main__":
             black_tiles.remove(position)
         else:
             black_tiles.add(position)
+    return black_tiles
+
+
+if __name__ == "__main__":
+    tile_flips = read_tile_flips(argv[-1])
+    black_tiles = initialize_tiles(tile_flips)
     print(black_tiles)
     print(len(black_tiles))
